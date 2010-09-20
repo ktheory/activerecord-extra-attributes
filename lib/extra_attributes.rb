@@ -1,4 +1,4 @@
-module Zenbe
+module KTheory
   module ExtraAttributes
     def self.included(base)
       base.extend(ClassMethods)
@@ -17,21 +17,22 @@ module Zenbe
         cattr_accessor :extra_attribute_options
 
         self.extra_attribute_options ||= {}
-        self.extra_attribute_options[name] = [type, default]
+        self.extra_attribute_options[name] = {:type => type, :default => default}
 
-        # The reader method
+        # Reader method
         define_method name do
           if ea = self.extra_attributes.find_by_name(name.to_s)
-            ExtraAttribute.cast(ea.value, extra_attribute_options[name][0])
+            ExtraAttribute.cast(ea.value, extra_attribute_options[name][:type])
           else
             # Fall back to the default
-            extra_attribute_options[name][1]
+            default = extra_attribute_options[name][:default]
+            default.is_a?(Proc) ? default.call(self) : default
           end
         end
-        
-        # The writer method
+
+        # Writer method
         define_method "#{name}=" do |value|
-          if new_record? 
+          if new_record?
             extra_attributes.build(:name => name.to_s, :value => value)
           else
             ea =  extra_attributes.find_or_create_by_name(name.to_s)
@@ -39,8 +40,8 @@ module Zenbe
           end
           value
         end
-        
-        # The test method
+
+        # Test method
         define_method "#{name}?" do
           !!self.send(name)
         end

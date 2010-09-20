@@ -12,6 +12,7 @@ class ExtraAttribute < ActiveRecord::Base
   # NB: it's not possible to validate the presence of the model, model_id, or
   # model_type if the association is built off an unsaved model.
   validates_presence_of :name
+  validates_uniqueness_of :name, :scope => [:model_id, :model_type]
 
   def self.cast(value, type)
     TYPES[type].call(value)

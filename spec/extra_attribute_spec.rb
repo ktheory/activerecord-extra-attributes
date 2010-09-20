@@ -3,8 +3,8 @@ describe ExtraAttribute, "class" do
   before(:all) do
     require 'tempfile'
     ActiveRecord::Base.establish_connection(
-    :adapter => "sqlite3",
-    :database  => Tempfile.new("extra_attributes").path
+      :adapter => "sqlite3",
+      :database  => Tempfile.new("extra_attributes").path
     )
     require 'migration.rb'
     CreateExtraAttributesTable.migrate(:up)
@@ -21,7 +21,7 @@ describe ExtraAttribute, "class" do
     end
 
     # Test true boolean values
-    [1,"1", "true", "foo"].each do |val|
+    [1,"1", "true", "foo", true].each do |val|
       ExtraAttribute.cast(val, :boolean).class.should == TrueClass
     end
   end
